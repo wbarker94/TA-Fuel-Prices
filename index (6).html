@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TravelCenters of America · Fuel Prices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#0066AA;      /* TA blue */
+    --red:#EE3124;       /* TA red */
+    --navy:#004E84;      /* deeper TA blue */
+    --text:#FFFFFF;
+    --muted:#D3E5F3;
+    --ink:#14212E;
+    --ink-muted:#5B6773;
+    --up:#C4261D;
+    --down:#1A8A4A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:transparent}
+  body{font-family:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text)}
+
+  /* Keeps the 856 x 559 (about 3:2) shape at every width; sizes scale with the widget's width */
+  .widget{
+    container-type:inline-size;
+    width:100%;min-width:220px;max-width:900px;margin:0 auto;
+    aspect-ratio:856 / 559;
+    display:flex;flex-direction:column;
+    background:linear-gradient(180deg,var(--blue) 0%,var(--navy) 100%);
+    border-radius:clamp(10px,1.6cqi,14px);
+    border-top:clamp(3px,.6cqi,5px) solid var(--red);
+  }
+  .inner{flex:1;display:flex;flex-direction:column;padding:3.2cqi 3.6cqi}
+
+  .top{display:flex;align-items:center;gap:2.4cqi}
+  .badge{background:#FFFFFF;border-radius:clamp(4px,1cqi,8px);padding:clamp(3px,.9cqi,8px);display:inline-flex;line-height:0;flex:0 0 auto}
+  .logo{height:clamp(24px,6.6cqi,58px);width:auto;display:block}
+  h1{flex:1;min-width:0;font-family:"Barlow Condensed","Arial Narrow",Impact,sans-serif;font-weight:700;
+     font-size:clamp(16px,5.2cqi,44px);line-height:1;letter-spacing:.01em;text-transform:uppercase}
+  .tag{font-size:clamp(10px,1.6cqi,14px);color:var(--muted);font-weight:600;white-space:nowrap}
+  .lane{height:max(2px,.35cqi);margin:2.2cqi 0 0;opacity:.85;
+        background:repeating-linear-gradient(90deg,#FFFFFF 0 3cqi,transparent 3cqi 5.2cqi)}
+
+  .signs{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6cqi;margin-block:auto}
+  .sign,.traffic{border-radius:clamp(6px,1.2cqi,10px);padding:1.7cqi 1.9cqi;min-width:0;display:flex;flex-direction:column}
+  .sign{background:#FFFFFF;color:var(--ink)}
+  .fuel{align-self:flex-start;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;
+        text-transform:uppercase;letter-spacing:.06em;font-size:clamp(9px,1.5cqi,13px);line-height:1.25;
+        padding:.25em .6em;border-radius:3px;background:var(--blue);color:#FFFFFF}
+  .diesel .fuel{background:var(--red)}
+  .price{font-family:"Barlow Condensed","Arial Narrow",Impact,sans-serif;font-weight:700;line-height:.95;
+         font-variant-numeric:tabular-nums;white-space:nowrap;margin-top:.8cqi;font-size:clamp(20px,6.2cqi,52px)}
+  .diesel .price{color:var(--red)} .gas .price{color:var(--blue)}
+  .price .tenth{font-size:.42em;vertical-align:super;margin-left:1px}
+  .unit,.change,.trend-lbl,.t-sub{font-size:clamp(9px,1.5cqi,13px);line-height:1.25}
+  .unit,.trend-lbl{color:var(--ink-muted)}
+  .change{font-weight:600;margin-top:.4cqi}
+  .change.up{color:var(--up)} .change.down{color:var(--down)} .change.flat{color:var(--ink-muted)}
+  .change span{color:var(--ink-muted);font-weight:400}
+  .trend{margin-top:auto;padding-top:.9cqi}
+  .trend svg{display:block;width:100%;height:clamp(12px,2.8cqi,24px)}
+  .trend-lbl{margin-top:2px}
+
+  .traffic{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28)}
+  .t-head{display:flex;align-items:flex-start;gap:1.2cqi}
+  .traffic svg{flex:0 0 auto;width:clamp(16px,3.8cqi,34px);height:auto;margin-top:2px}
+  .t-lbl{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;text-transform:uppercase;
+         letter-spacing:.05em;font-size:clamp(9px,1.5cqi,13px);line-height:1.2}
+  .t-sub{color:var(--muted)}
+  .t-count{margin-top:auto;padding-top:.8cqi}
+  .t-num{font-family:"Barlow Condensed","Arial Narrow",Impact,sans-serif;font-weight:700;line-height:1;
+         font-size:clamp(20px,5cqi,44px);font-variant-numeric:tabular-nums}
+  .t-up{display:inline-block;margin-top:.6cqi;background:var(--red);color:#fff;font-weight:600;
+        font-size:clamp(9px,1.35cqi,12px);padding:1px .6em;border-radius:999px;white-space:nowrap}
+
+  .foot{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:clamp(9px,1.5cqi,13px)}
+  .foot strong{color:var(--text);font-weight:600}
+
+  .short{display:none}
+  @container (max-width:480px){ .gas .fuel .long{display:none} .gas .fuel .short{display:inline} }
+
+  /* Phone widths: trim secondary text so the 3:2 shape stays readable */
+  @container (max-width:560px){
+    .tag,.trend-lbl,.t-sub{display:none}
+    .change span{display:none}
+  }
+  @container (max-width:340px){
+    .unit,.trend,#next{display:none}
+    .t-up{font-size:8px}
+    .t-lbl .long,.traffic svg,.pill-more{display:none}
+    .t-lbl .short{display:inline}
+    h1{font-size:14px}
+    .logo{height:22px}
+    .t-num{font-size:18px}
+    .price{font-size:18px}
+  }
+</style>
+</head>
+<body>
+<section class="widget" id="fuel" aria-labelledby="fuel-title">
+  <div class="inner">
+    <div class="top">
+      <div class="brand"><span class="badge"><img class="logo" alt="TravelCenters of America" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyNy45LjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAxOTEuMTYgMjAwLjM1IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxOTEuMTYgMjAwLjM1OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPg0KCS5zdDB7ZmlsbDojMDA2NkFBO30NCgkuc3Qxe2ZpbGwtcnVsZTpldmVub2RkO2NsaXAtcnVsZTpldmVub2RkO2ZpbGw6IzAwNjZBQTt9DQoJLnN0MntmaWxsOiNGRkZGRkY7fQ0KCS5zdDN7ZmlsbDojRUUzMTI0O30NCjwvc3R5bGU+DQo8Zz4NCgk8Zz4NCgkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTUuODIsMTc0LjM3di0xMy4zM0gwLjI0di00LjZoMTcuMjh2NC42aC01LjU4djEzLjMzSDUuODJ6Ii8+DQoJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xOC4wMiwxNzQuMzd2LTEyLjMyaDUuM2wwLjA1LDIuMDNjMC4yNS0wLjc0LDAuNjQtMS4zMSwxLjE2LTEuN2MwLjUzLTAuMzksMS4xNS0wLjU5LDEuODYtMC41OQ0KCQkJYzAuNiwwLDEuMDksMC4wOCwxLjQ4LDAuMjRsLTAuNDMsNC44NGMtMC4yMi0wLjA4LTAuNS0wLjE1LTAuODQtMC4yMWMtMC4zNC0wLjA2LTAuNjUtMC4wOS0wLjkxLTAuMDljLTEuNSwwLTIuMjUsMC45NC0yLjI1LDIuODENCgkJCXY1SDE4LjAyeiIvPg0KCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMzUsMTc0Ljc1Yy0xLjEsMC0yLjA3LTAuMjgtMi45MS0wLjgzYy0wLjg0LTAuNTUtMS41LTEuMzEtMS45OC0yLjI5Yy0wLjQ4LTAuOTgtMC43MS0yLjA5LTAuNzEtMy4zNQ0KCQkJYzAtMS4yNywwLjI1LTIuNDEsMC43NC0zLjRjMC40OS0wLjk5LDEuMTctMS43NywyLjA0LTIuMzVjMC44Ny0wLjU3LDEuODQtMC44NiwyLjkzLTAuODZjMC44LDAsMS41MSwwLjE1LDIuMTMsMC40Ng0KCQkJYzAuNjIsMC4zMSwxLjA5LDAuNzMsMS40MywxLjI2bDAuMDUtMS4zNWg1LjA4djEyLjMyaC01LjA4bC0wLjA1LTEuMzVDMzcuOTYsMTc0LjE3LDM2Ljc0LDE3NC43NSwzNSwxNzQuNzV6IE0zNi43MSwxNzAuMTkNCgkJCWMwLjU3LDAsMS4wMy0wLjE4LDEuMzktMC41NWMwLjM2LTAuMzcsMC41NC0wLjg1LDAuNTQtMS40M3MtMC4xOC0xLjA2LTAuNTQtMS40M2MtMC4zNi0wLjM3LTAuODItMC41NS0xLjM5LTAuNTUNCgkJCXMtMS4wMywwLjE5LTEuMzksMC41NWMtMC4zNiwwLjM3LTAuNTQsMC44NS0wLjU0LDEuNDNzMC4xOCwxLjA2LDAuNTQsMS40M0MzNS42OCwxNzAuMDEsMzYuMTQsMTcwLjE5LDM2LjcxLDE3MC4xOXoiLz4NCgkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTUwLjY5LDE3NC4zN2wtNC42My0xMi4zMmg2LjA1bDEuNTMsNy4xNWwxLjc4LTcuMTVoNS42OGwtNC42MywxMi4zMkg1MC42OXoiLz4NCgkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTcwLjA5LDE3NC43NWMtMS42OCwwLTMuMTMtMC4yNi00LjM0LTAuNzljLTEuMjEtMC41My0yLjE0LTEuMjgtMi43OS0yLjI3cy0wLjk4LTIuMTUtMC45OC0zLjUNCgkJCWMwLTEuMjksMC4yOS0yLjQyLDAuODgtMy40YzAuNTgtMC45OCwxLjQtMS43NCwyLjQ1LTIuMjljMS4wNS0wLjU1LDIuMjctMC44MywzLjY1LTAuODNjMi4wMywwLDMuNjMsMC41NSw0LjgsMS42NQ0KCQkJYzEuMTcsMS4xLDEuNzUsMi42MSwxLjc1LDQuNTNjMCwwLjI0LTAuMDEsMC40Ny0wLjAzLDAuNzFjLTAuMDIsMC4yNC0wLjA0LDAuNDgtMC4wNywwLjczaC04LjE1YzAuMjMsMC42NSwwLjY0LDEuMSwxLjIzLDEuMzcNCgkJCWMwLjU4LDAuMjcsMS4zOCwwLjQsMi40LDAuNGMwLjY4LDAsMS40LTAuMDcsMi4xNC0wLjIxYzAuNzQtMC4xNCwxLjM4LTAuMzIsMS45MS0wLjU0bDAuNDUsMy41NmMtMC43NSwwLjI4LTEuNTksMC41LTIuNTEsMC42NQ0KCQkJQzcxLjk2LDE3NC42Nyw3MS4wMywxNzQuNzUsNzAuMDksMTc0Ljc1eiBNNjguODksMTY1Yy0wLjk1LDAtMS41MywwLjU3LTEuNzMsMS43MmgzLjM4Yy0wLjAyLTAuMTYtMC4wNC0wLjMxLTAuMDgtMC40NQ0KCQkJYy0wLjEtMC4zOS0wLjI4LTAuNy0wLjU0LTAuOTNDNjkuNjcsMTY1LjEyLDY5LjMyLDE2NSw2OC44OSwxNjV6Ii8+DQoJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik03OC40MiwxNzQuMzd2LTE5LjExaDUuNDN2MTkuMTFINzguNDJ6Ii8+DQoJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik05Ny4zMywxNzQuNjNjLTIuMiwwLTQuMDgtMC4zNy01LjY0LTEuMWMtMS41Ni0wLjczLTIuNzUtMS43OC0zLjU4LTMuMTVjLTAuODItMS4zNy0xLjI0LTMuMDItMS4yNC00Ljk2DQoJCQljMC0xLjM3LDAuMjUtMi42MiwwLjc2LTMuNzRjMC41MS0xLjEyLDEuMjMtMi4xLDIuMTgtMi45M2MwLjk0LTAuODMsMi4wNS0xLjQ2LDMuMzQtMS45MWMxLjI4LTAuNDUsMi43LTAuNjcsNC4yNS0wLjY3DQoJCQljMS4xMywwLDIuMjUsMC4xMiwzLjM0LDAuMzdjMS4wOSwwLjI0LDIuMDEsMC41OCwyLjc2LDFsLTAuOTUsNC43Yy0wLjY3LTAuMzEtMS40My0wLjU3LTIuMjgtMC43NQ0KCQkJYy0wLjg1LTAuMTktMS42My0wLjI4LTIuMzUtMC4yOGMtMS41LDAtMi42NywwLjM3LTMuNTEsMS4xMmMtMC44NCwwLjc1LTEuMjYsMS43OC0xLjI2LDMuMWMwLDEuMjksMC40MiwyLjMxLDEuMjgsMy4wNg0KCQkJYzAuODUsMC43NSwyLjAyLDEuMTIsMy41LDEuMTJjMC43NywwLDEuNjItMC4xMywyLjU2LTAuNGMwLjk0LTAuMjcsMS43OC0wLjYxLDIuNTEtMS4wMWwwLjY1LDQuOTYNCgkJCWMtMC40NywwLjI4LTEuMDUsMC41NC0xLjc0LDAuNzdjLTAuNjksMC4yMy0xLjQzLDAuNC0yLjIzLDAuNTNTOTguMTEsMTc0LjYzLDk3LjMzLDE3NC42M3oiLz4NCgkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTExNC4wMSwxNzQuNzVjLTEuNjgsMC0zLjEzLTAuMjYtNC4zNC0wLjc5Yy0xLjIxLTAuNTMtMi4xNC0xLjI4LTIuNzktMi4yN3MtMC45OC0yLjE1LTAuOTgtMy41DQoJCQljMC0xLjI5LDAuMjktMi40MiwwLjg4LTMuNGMwLjU4LTAuOTgsMS40LTEuNzQsMi40NS0yLjI5YzEuMDUtMC41NSwyLjI3LTAuODMsMy42NS0wLjgzYzIuMDMsMCwzLjYzLDAuNTUsNC44LDEuNjUNCgkJCWMxLjE3LDEuMSwxLjc1LDIuNjEsMS43NSw0LjUzYzAsMC4yNC0wLjAxLDAuNDctMC4wMywwLjcxYy0wLjAyLDAuMjQtMC4wNCwwLjQ4LTAuMDcsMC43M2gtOC4xNWMwLjIzLDAuNjUsMC42NCwxLjEsMS4yMywxLjM3DQoJCQljMC41OCwwLjI3LDEuMzgsMC40LDIuNCwwLjRjMC42OCwwLDEuNC0wLjA3LDIuMTQtMC4yMWMwLjc0LTAuMTQsMS4zOC0wLjMyLDEuOTEtMC41NGwwLjQ1LDMuNTZjLTAuNzUsMC4yOC0xLjU5LDAuNS0yLjUxLDAuNjUNCgkJCUMxMTUuODcsMTc0LjY3LDExNC45NCwxNzQuNzUsMTE0LjAxLDE3NC43NXogTTExMi44MSwxNjVjLTAuOTUsMC0xLjUzLDAuNTctMS43MywxLjcyaDMuMzhjLTAuMDItMC4xNi0wLjA0LTAuMzEtMC4wOC0wLjQ1DQoJCQljLTAuMS0wLjM5LTAuMjgtMC43LTAuNTQtMC45M0MxMTMuNTksMTY1LjEyLDExMy4yNCwxNjUsMTEyLjgxLDE2NXoiLz4NCgkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTEyMi4zNCwxNzQuMzd2LTEyLjMyaDUuMzVsMC4wNSwxLjMyYzAuNy0xLjEzLDEuODktMS43LDMuNTgtMS43YzEuNDMsMCwyLjUzLDAuNDQsMy4yOCwxLjMyDQoJCQljMC43NSwwLjg4LDEuMTMsMi4xNiwxLjEzLDMuODV2Ny41M2gtNS40M3YtNi41NGMwLTEuMDctMC40Mi0xLjYtMS4yNS0xLjZjLTAuODUsMC0xLjI4LDAuNTctMS4yOCwxLjcydjYuNDJIMTIyLjM0eiIvPg0KCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTQ1LjAyLDE3NC43NWMtMy4zOCwwLTUuMDgtMS42NC01LjA4LTQuOTN2LTMuNzFoLTEuOTV2LTQuMDZoMS45NXYtMy4wNGg1LjM4djMuMDRoMy40djQuMDZoLTMuNHYyLjQzDQoJCQljMCwwLjYxLDAuMTEsMS4wNCwwLjMzLDEuMjljMC4yMiwwLjI0LDAuNTgsMC4zNywxLjEsMC4zN2MwLjY3LDAsMS4zMi0wLjEzLDEuOTUtMC4zOGwwLjUzLDQuMg0KCQkJQzE0OC4yMiwxNzQuNSwxNDYuODIsMTc0Ljc1LDE0NS4wMiwxNzQuNzV6Ii8+DQoJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xNTkuMzIsMTc0Ljc1Yy0xLjY4LDAtMy4xMy0wLjI2LTQuMzQtMC43OWMtMS4yMS0wLjUzLTIuMTQtMS4yOC0yLjc5LTIuMjdjLTAuNjUtMC45OC0wLjk4LTIuMTUtMC45OC0zLjUNCgkJCWMwLTEuMjksMC4yOS0yLjQyLDAuODgtMy40YzAuNTgtMC45OCwxLjQtMS43NCwyLjQ1LTIuMjljMS4wNS0wLjU1LDIuMjctMC44MywzLjY1LTAuODNjMi4wMywwLDMuNjMsMC41NSw0LjgsMS42NQ0KCQkJYzEuMTcsMS4xLDEuNzUsMi42MSwxLjc1LDQuNTNjMCwwLjI0LTAuMDEsMC40Ny0wLjAzLDAuNzFjLTAuMDIsMC4yNC0wLjA0LDAuNDgtMC4wOCwwLjczaC04LjE1YzAuMjMsMC42NSwwLjY0LDEuMSwxLjIzLDEuMzcNCgkJCWMwLjU4LDAuMjcsMS4zOCwwLjQsMi40LDAuNGMwLjY4LDAsMS40LTAuMDcsMi4xNC0wLjIxYzAuNzQtMC4xNCwxLjM4LTAuMzIsMS45MS0wLjU0bDAuNDUsMy41NmMtMC43NSwwLjI4LTEuNTksMC41LTIuNTEsMC42NQ0KCQkJQzE2MS4xOSwxNzQuNjcsMTYwLjI2LDE3NC43NSwxNTkuMzIsMTc0Ljc1eiBNMTU4LjEyLDE2NWMtMC45NSwwLTEuNTIsMC41Ny0xLjcyLDEuNzJoMy4zOGMtMC4wMi0wLjE2LTAuMDQtMC4zMS0wLjA4LTAuNDUNCgkJCWMtMC4xLTAuMzktMC4yOC0wLjctMC41NC0wLjkzQzE1OC45LDE2NS4xMiwxNTguNTYsMTY1LDE1OC4xMiwxNjV6Ii8+DQoJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xNjcuNjUsMTc0LjM3di0xMi4zMmg1LjNsMC4wNSwyLjAzYzAuMjUtMC43NCwwLjY0LTEuMzEsMS4xNi0xLjdjMC41My0wLjM5LDEuMTUtMC41OSwxLjg2LTAuNTkNCgkJCWMwLjYsMCwxLjA5LDAuMDgsMS40OCwwLjI0bC0wLjQyLDQuODRjLTAuMjItMC4wOC0wLjUtMC4xNS0wLjg0LTAuMjFjLTAuMzQtMC4wNi0wLjY1LTAuMDktMC45MS0wLjA5Yy0xLjUsMC0yLjI1LDAuOTQtMi4yNSwyLjgxDQoJCQl2NUgxNjcuNjV6Ii8+DQoJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xODUuMDQsMTc0Ljc1Yy0xLjA3LDAtMi4xMS0wLjExLTMuMTMtMC4zNGMtMS4wMi0wLjIzLTEuODMtMC41My0yLjQ1LTAuOTFsMC41Ny0zLjQ3DQoJCQljMS40NSwwLjgsMi45OCwxLjIsNC42LDEuMmMwLjQzLDAsMC43NS0wLjA0LDAuOTQtMC4xMmMwLjE5LTAuMDgsMC4yOS0wLjIsMC4yOS0wLjM4YzAtMC4xOS0wLjEtMC4zMy0wLjI5LTAuNDQNCgkJCWMtMC4xOS0wLjEtMC42MS0wLjIzLTEuMjYtMC4zOWMtMS42Ny0wLjQxLTIuODUtMC45My0zLjU1LTEuNTZjLTAuNy0wLjYzLTEuMDUtMS41LTEuMDUtMi42MmMwLTEuMjksMC41MS0yLjI5LDEuNTQtMw0KCQkJYzEuMDMtMC43MSwyLjQ1LTEuMDYsNC4yOS0xLjA2YzAuOTMsMCwxLjg1LDAuMDksMi43NiwwLjI2YzAuOTEsMC4xNywxLjY2LDAuNDEsMi4yNiwwLjcxbC0wLjUsMy40NQ0KCQkJYy0wLjY3LTAuMjgtMS4zNi0wLjUtMi4wOS0wLjY2Yy0wLjczLTAuMTYtMS40LTAuMjQtMi4wMS0wLjI0Yy0wLjY4LDAtMS4wMywwLjE3LTEuMDMsMC41YzAsMC4xNywwLjExLDAuMzIsMC4zNCwwLjQ0DQoJCQljMC4yMiwwLjEyLDAuNjksMC4yNiwxLjM5LDAuNDRjMS41OCwwLjM5LDIuNzMsMC45MiwzLjQ0LDEuNThjMC43MSwwLjY2LDEuMDYsMS41MywxLjA2LDIuNjJjMCwxLjI3LTAuNTMsMi4yNi0xLjU5LDIuOTUNCgkJCUMxODguNTIsMTc0LjQsMTg3LDE3NC43NSwxODUuMDQsMTc0Ljc1eiIvPg0KCTwvZz4NCgk8Zz4NCgkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTkuMzMsMjAwLjM1Yy0xLjQsMC0yLjY1LTAuMjgtMy43NS0wLjg0Yy0xLjEtMC41Ni0xLjk3LTEuMzMtMi42LTIuMzJjLTAuNjMtMC45OS0wLjk1LTIuMTItMC45NS0zLjM3DQoJCQljMC0xLjI3LDAuMzItMi40LDAuOTUtMy4zOWMwLjYzLTAuOTgsMS41LTEuNzUsMi42LTIuMzFjMS4xLTAuNTYsMi4zNS0wLjg0LDMuNzUtMC44NGMxLjQyLDAsMi42NywwLjI4LDMuNzYsMC44NA0KCQkJYzEuMDksMC41NiwxLjk1LDEuMzMsMi41OSwyLjMxYzAuNjMsMC45OCwwLjk1LDIuMTEsMC45NSwzLjM5YzAsMS4yNi0wLjMyLDIuMzgtMC45NSwzLjM3Yy0wLjYzLDAuOTktMS41LDEuNzctMi41OSwyLjMyDQoJCQlDMTIuMDEsMjAwLjA3LDEwLjc1LDIwMC4zNSw5LjMzLDIwMC4zNXogTTkuMzMsMTk1Ljc5YzAuNTcsMCwxLjAzLTAuMTgsMS4zOS0wLjU1YzAuMzYtMC4zNywwLjU0LTAuODUsMC41NC0xLjQzDQoJCQljMC0wLjU4LTAuMTgtMS4wNi0wLjU0LTEuNDNjLTAuMzYtMC4zNy0wLjgyLTAuNTUtMS4zOS0wLjU1Yy0wLjU3LDAtMS4wMywwLjE5LTEuMzksMC41NWMtMC4zNiwwLjM3LTAuNTQsMC44NS0wLjU0LDEuNDMNCgkJCWMwLDAuNTgsMC4xOCwxLjA2LDAuNTQsMS40M0M4LjMsMTk1LjYxLDguNzcsMTk1Ljc5LDkuMzMsMTk1Ljc5eiIvPg0KCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMjAuMzEsMTk5Ljk3di04LjI2aC0xLjl2LTQuMDZoMS45di0wLjkyYzAtMS45LDAuNTItMy4zOCwxLjU2LTQuNDJjMS4wNC0xLjA1LDIuNS0xLjU3LDQuMzYtMS41Nw0KCQkJYzAuNTgsMCwxLjIsMC4wNiwxLjg2LDAuMTdjMC42NiwwLjExLDEuMTcsMC4yNSwxLjU0LDAuNDJsLTAuNTIsNC4xMWMtMC4xNy0wLjA4LTAuNDEtMC4xNC0wLjczLTAuMg0KCQkJYy0wLjMyLTAuMDYtMC41OS0wLjA4LTAuODItMC4wOGMtMS4yMiwwLTEuODMsMC42Mi0xLjgzLDEuODZ2MC42NGgyLjczdjQuMDZoLTIuNzN2OC4yNkgyMC4zMXoiLz4NCgkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTM0LjUzLDE5OS45N2w3LjMzLTE3LjkzaDYuMjVsNy4zNSwxNy45M2gtNi4zOGwtMS4yLTMuN2gtNi4xOGwtMS4yLDMuN0gzNC41M3ogTTQzLjA5LDE5Mi4wMmgzLjQzDQoJCQlsLTEuNy01LjI2TDQzLjA5LDE5Mi4wMnoiLz4NCgkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTU3Ljg5LDE5OS45N3YtMTIuMzJoNS4zbDAuMDUsMS4zMmMwLjctMS4xMywxLjg5LTEuNywzLjU4LTEuN3MyLjg5LDAuNiwzLjYzLDEuNzkNCgkJCWMwLjM3LTAuNTcsMC45LTEuMDEsMS42LTEuMzJjMC43LTAuMzEsMS40OC0wLjQ3LDIuMzUtMC40N2MyLjk4LDAsNC40OCwxLjcyLDQuNDgsNS4xN3Y3LjUzSDczLjV2LTYuNTRjMC0xLjA3LTAuNC0xLjYtMS4yLTEuNg0KCQkJYy0wLjgyLDAtMS4yMywwLjU3LTEuMjMsMS43MnY2LjQySDY1Ljd2LTYuNTRjMC0xLjA3LTAuNC0xLjYtMS4yLTEuNmMtMC44MiwwLTEuMjMsMC41Ny0xLjIzLDEuNzJ2Ni40Mkg1Ny44OXoiLz4NCgkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTg5LjYzLDIwMC4zNWMtMS42OCwwLTMuMTMtMC4yNi00LjM0LTAuNzljLTEuMjEtMC41My0yLjE0LTEuMjgtMi43OS0yLjI3Yy0wLjY1LTAuOTgtMC45OC0yLjE1LTAuOTgtMy41DQoJCQljMC0xLjI5LDAuMjktMi40MiwwLjg4LTMuNGMwLjU4LTAuOTgsMS40LTEuNzQsMi40NS0yLjI5YzEuMDUtMC41NSwyLjI3LTAuODMsMy42NS0wLjgzYzIuMDMsMCwzLjYzLDAuNTUsNC44LDEuNjUNCgkJCWMxLjE3LDEuMSwxLjc1LDIuNjEsMS43NSw0LjUzYzAsMC4yNC0wLjAxLDAuNDctMC4wMywwLjcxYy0wLjAyLDAuMjQtMC4wNCwwLjQ4LTAuMDcsMC43M0g4Ni44YzAuMjMsMC42NSwwLjY0LDEuMSwxLjIzLDEuMzcNCgkJCWMwLjU4LDAuMjcsMS4zOCwwLjQsMi40LDAuNGMwLjY4LDAsMS40LTAuMDcsMi4xNC0wLjIxYzAuNzQtMC4xNCwxLjM4LTAuMzIsMS45MS0wLjU0bDAuNDUsMy41NmMtMC43NSwwLjI4LTEuNTksMC41LTIuNTEsMC42NQ0KCQkJQzkxLjQ5LDIwMC4yNyw5MC41NiwyMDAuMzUsODkuNjMsMjAwLjM1eiBNODguNDMsMTkwLjZjLTAuOTUsMC0xLjUzLDAuNTctMS43MywxLjcyaDMuMzhjLTAuMDItMC4xNi0wLjA0LTAuMzEtMC4wOC0wLjQ1DQoJCQljLTAuMS0wLjM5LTAuMjgtMC43LTAuNTQtMC45M0M4OS4yMSwxOTAuNzIsODguODYsMTkwLjYsODguNDMsMTkwLjZ6Ii8+DQoJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik05Ny43NSwxOTkuOTd2LTEyLjMyaDUuM2wwLjA1LDIuMDNjMC4yNS0wLjc0LDAuNjQtMS4zMSwxLjE2LTEuN2MwLjUzLTAuMzksMS4xNS0wLjU5LDEuODYtMC41OQ0KCQkJYzAuNiwwLDEuMDksMC4wOCwxLjQ4LDAuMjRsLTAuNDMsNC44NGMtMC4yMi0wLjA4LTAuNS0wLjE1LTAuODQtMC4yMWMtMC4zNC0wLjA2LTAuNjUtMC4wOS0wLjkxLTAuMDljLTEuNSwwLTIuMjUsMC45NC0yLjI1LDIuODENCgkJCXY1SDk3Ljc1eiIvPg0KCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTEyLjczLDE4Ni4yMWMtMC44MiwwLTEuNTEtMC4yNS0yLjA5LTAuNzZjLTAuNTctMC41LTAuODYtMS4xMi0wLjg2LTEuODRjMC0wLjc0LDAuMjgtMS4zNiwwLjg1LTEuODYNCgkJCWMwLjU3LTAuNSwxLjI3LTAuNzYsMi4xLTAuNzZjMC44MywwLDEuNTMsMC4yNSwyLjA5LDAuNzZjMC41NiwwLjUsMC44NCwxLjEzLDAuODQsMS44NmMwLDAuNzItMC4yOCwxLjM0LTAuODQsMS44NA0KCQkJQzExNC4yNiwxODUuOTYsMTEzLjU2LDE4Ni4yMSwxMTIuNzMsMTg2LjIxeiBNMTEwLDE5OS45N3YtMTIuMzJoNS40M3YxMi4zMkgxMTB6Ii8+DQoJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xMjUuMjksMjAwLjNjLTEuNDcsMC0yLjc1LTAuMjctMy44NC0wLjhjLTEuMDktMC41My0xLjk0LTEuMjktMi41NS0yLjI1Yy0wLjYxLTAuOTctMC45MS0yLjEtMC45MS0zLjM5DQoJCQljMC0xLjI5LDAuMzEtMi40MywwLjkzLTMuNDFjMC42Mi0wLjk4LDEuNDctMS43NSwyLjU2LTIuMzFjMS4wOS0wLjU2LDIuMzUtMC44NCwzLjc5LTAuODRjMC44MywwLDEuNjksMC4wOSwyLjU4LDAuMjcNCgkJCWMwLjg4LDAuMTgsMS41OSwwLjQxLDIuMTMsMC43bC0wLjYzLDQuMjVjLTAuNTgtMC4yNC0xLjE0LTAuNC0xLjY2LTAuNTFzLTEuMDYtMC4xNS0xLjYxLTAuMTVjLTAuODcsMC0xLjUzLDAuMTctMiwwLjUxDQoJCQljLTAuNDcsMC4zNC0wLjcsMC44Mi0wLjcsMS40NWMwLDAuNjEsMC4yNCwxLjA5LDAuNzMsMS40M2MwLjQ4LDAuMzQsMS4xNiwwLjUxLDIuMDMsMC41MWMxLjAzLDAsMi4xNC0wLjIyLDMuMzMtMC42NmwwLjUyLDQuMTgNCgkJCWMtMC42MiwwLjMzLTEuMzQsMC41OS0yLjE2LDAuNzdDMTI2Ljk4LDIwMC4yMSwxMjYuMTQsMjAwLjMsMTI1LjI5LDIwMC4zeiIvPg0KCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTM3LjcyLDIwMC4zNWMtMS4xLDAtMi4wNy0wLjI4LTIuOTEtMC44M2MtMC44NC0wLjU1LTEuNS0xLjMxLTEuOTgtMi4yOWMtMC40OC0wLjk4LTAuNzEtMi4wOS0wLjcxLTMuMzUNCgkJCWMwLTEuMjcsMC4yNS0yLjQxLDAuNzQtMy40YzAuNDktMC45OSwxLjE3LTEuNzcsMi4wNC0yLjM1YzAuODctMC41NywxLjg0LTAuODYsMi45My0wLjg2YzAuOCwwLDEuNTEsMC4xNSwyLjEzLDAuNDYNCgkJCWMwLjYyLDAuMzEsMS4wOSwwLjczLDEuNDMsMS4yNmwwLjA1LTEuMzVoNS4wOHYxMi4zMmgtNS4wOGwtMC4wNS0xLjM1QzE0MC42NywxOTkuNzcsMTM5LjQ2LDIwMC4zNSwxMzcuNzIsMjAwLjM1eg0KCQkJIE0xMzkuNDIsMTk1Ljc5YzAuNTcsMCwxLjAzLTAuMTgsMS4zOS0wLjU1YzAuMzYtMC4zNywwLjU0LTAuODUsMC41NC0xLjQzYzAtMC41OC0wLjE4LTEuMDYtMC41NC0xLjQzDQoJCQljLTAuMzYtMC4zNy0wLjgyLTAuNTUtMS4zOS0wLjU1Yy0wLjU3LDAtMS4wMywwLjE5LTEuMzksMC41NWMtMC4zNiwwLjM3LTAuNTQsMC44NS0wLjU0LDEuNDNjMCwwLjU4LDAuMTgsMS4wNiwwLjU0LDEuNDMNCgkJCUMxMzguMzksMTk1LjYxLDEzOC44NiwxOTUuNzksMTM5LjQyLDE5NS43OXoiLz4NCgk8L2c+DQo8L2c+DQo8cGF0aCBjbGFzcz0ic3QxIiBkPSJNMTUyLjgyLDIwMC4zMmMxLjk4LDAsMy41OC0xLjYsMy41OC0zLjU5YzAtMS45Ny0xLjYtMy41OC0zLjU4LTMuNThjLTEuOTksMC0zLjU5LDEuNi0zLjU5LDMuNTgNCglDMTQ5LjIyLDE5OC43MSwxNTAuODMsMjAwLjMyLDE1Mi44MiwyMDAuMzJMMTUyLjgyLDIwMC4zMnogTTE1Mi44MiwxOTkuODhjLTEuNzUsMC0zLjE2LTEuNDEtMy4xNi0zLjE2YzAtMS43NCwxLjQxLTMuMTUsMy4xNi0zLjE1DQoJYzEuNzQsMCwzLjE0LDEuNDEsMy4xNCwzLjE1QzE1NS45NiwxOTguNDgsMTU0LjU1LDE5OS44OCwxNTIuODIsMTk5Ljg4TDE1Mi44MiwxOTkuODh6IE0xNTMuMzksMTk2Ljg4DQoJYzAuNzEtMC4wMiwxLjI3LTAuMzEsMS4yNy0xLjFjMC0wLjM0LTAuMTUtMC43LTAuNDUtMC44NmMtMC4zLTAuMTgtMC42NC0wLjItMC45OC0wLjJoLTEuNzR2NC4wMWgwLjQ5di0xLjg1aDAuOWwxLjE1LDEuODVoMC41OA0KCUwxNTMuMzksMTk2Ljg4TDE1My4zOSwxOTYuODh6IE0xNTEuOTcsMTk2LjV2LTEuNDJoMS4xNWMwLjUsMCwxLjA0LDAuMDgsMS4wNCwwLjY5YzAsMC44Mi0wLjg3LDAuNzItMS40MywwLjcySDE1MS45N0wxNTEuOTcsMTk2LjUNCgl6Ii8+DQo8Zz4NCgk8cG9seWdvbiBjbGFzcz0ic3QwIiBwb2ludHM9IjEyNiwxNDQgMTIwLjAzLDEyNS4zIDExMC44MiwxMjUuMyAxMDQuODUsMTQ0IDAuMjUsMTQ0IDI2Ljc3LDYwLjk0IDAsNjAuOTQgMTkuNDUsMCAxNDUuMTksMCANCgkJMTkxLjE2LDE0NCAJIi8+DQo8L2c+DQo8Zz4NCgk8cG9seWdvbiBjbGFzcz0ic3QyIiBwb2ludHM9IjEzMS40MiwxMzYuNTggMTI1LjQ1LDExNy44OCAxMDUuMzksMTE3Ljg4IDk5LjQyLDEzNi41OCAxMC40MSwxMzYuNTggMzYuOTMsNTMuNTEgMTAuMTYsNTMuNTEgDQoJCTI0Ljg3LDcuNDIgMTM5Ljc3LDcuNDIgMTgxLDEzNi41OCAJIi8+DQo8L2c+DQo8Zz4NCgk8cG9seWdvbiBjbGFzcz0ic3QwIiBwb2ludHM9IjEwOC4xLDQ0LjQ1IDgxLjMyLDQ0LjQ1IDU0LjgsMTI3LjUxIDIyLjgyLDEyNy41MSA0OS4zNCw0NC40NSAyMi41Nyw0NC40NSAzMS41LDE2LjQ5IDExNy4wMiwxNi40OSAJDQoJCSIvPg0KCTxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik0xMzMuMTUsMTYuNDlsMzUuNDQsMTExLjAyaC0zMC41NGwtNS45Ny0xOC43SDk4Ljc3bC01Ljk3LDE4LjdINjIuMjVsMjQuMjYtNzUuOTdsMjYuNzgsMGwxMS4xOS0zNS4wNUgxMzMuMTUNCgkJeiBNMTA3Ljg3LDgwLjNoMTUuMDlsLTcuNTQtMjMuNjVMMTA3Ljg3LDgwLjN6Ii8+DQo8L2c+DQo8L3N2Zz4NCg=="></span></div>
+      <h1 id="fuel-title">Fuel prices right now</h1>
+      <p class="tag" id="live">● Live pricing</p>
+    </div>
+    <div class="lane" aria-hidden="true"></div>
+
+
+    <div class="signs">
+      <article class="sign diesel" id="sign-diesel">
+        <span class="fuel">Diesel</span>
+        <div class="price" data-f="price"></div>
+        <div class="unit">Per gallon</div>
+        <div class="change" data-f="change"></div>
+        <div class="trend"><svg viewBox="0 0 200 48" preserveAspectRatio="none" aria-hidden="true"><path data-f="spark" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><div class="trend-lbl" data-f="trendlbl"></div></div>
+      </article>
+      <article class="sign gas" id="sign-gasoline">
+        <span class="fuel"><span class="long">Regular gasoline</span><span class="short">Regular</span></span>
+        <div class="price" data-f="price"></div>
+        <div class="unit">Per gallon</div>
+        <div class="change" data-f="change"></div>
+        <div class="trend"><svg viewBox="0 0 200 48" preserveAspectRatio="none" aria-hidden="true"><path data-f="spark" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><div class="trend-lbl" data-f="trendlbl"></div></div>
+      </article>
+      <div class="traffic">
+        <div class="t-head"><svg viewBox="0 0 48 32" aria-hidden="true"><rect x="2" y="6" width="28" height="18" rx="2" fill="#FFFFFF"/><path d="M30 12h8l6 6v6H30z" fill="#FFFFFF"/><path d="M33 14h4.5l3.5 4H33z" fill="var(--blue)"/><circle cx="11" cy="26" r="4" fill="var(--red)" stroke="#FFFFFF" stroke-width="2"/><circle cx="37" cy="26" r="4" fill="var(--red)" stroke="#FFFFFF" stroke-width="2"/></svg><div class="t-text"><div class="t-lbl"><span class="long">Traffic into the travel center</span><span class="short">Traffic today</span></div><div class="t-sub">Vehicles today</div></div></div>
+        <div class="t-count">
+          <div class="t-num" id="traffic">—</div>
+          <span class="t-up" id="traffic-up">+20</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <span>Updated <strong id="updated">—</strong></span>
+      <span id="next">Next update in — min</span>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  // Demo pricing: prices step every 15 minutes, drifting down 25¢ from the
+  // baseline and back up again. Based on the clock, so every viewer sees the same price.
+  const STEP = 15 * 60 * 1000;          // 15 minutes
+  const HALF = 12;                      // 12 steps down (3 hrs), 12 steps up (3 hrs)
+  const RANGE = 0.25;                   // dollars
+  const FUELS = {
+    diesel:   { base: 5.99, phase: 0 },
+    gasoline: { base: 4.19, phase: 7 }  // offset so the two don't move in lockstep
+  };
+
+  const TRAFFIC_START = 100;   // vehicles at midnight
+  const TRAFFIC_STEP  = 20;    // added every 15 minutes
+
+  // small, repeatable wobble so the line isn't perfectly straight
+  function wobble(n){ const x = Math.sin(n * 12.9898) * 43758.5453; return (x - Math.floor(x) - .5) * 0.012; }
+
+  function priceAt(fuel, n){
+    const k = ((n + fuel.phase) % (HALF * 2) + HALF * 2) % (HALF * 2);
+    const depth = k <= HALF ? k / HALF : (2 * HALF - k) / HALF;   // 0 → 1 → 0
+    let p = fuel.base - depth * RANGE + (k % HALF ? wobble(n + fuel.phase) : 0);
+    p = Math.min(fuel.base, Math.max(fuel.base - RANGE, p));
+    return Math.round(p * 100) / 100 + 0.009;                       // pump-style 9/10¢
+  }
+
+  function priceHTML(v){
+    const s = v.toFixed(3);
+    return '$' + s.slice(0,-1) + '<span class="tenth">' + s.slice(-1) + '</span>';
+  }
+
+  function spark(vals){
+    const min = Math.min(...vals), max = Math.max(...vals), span = (max - min) || 1;
+    return vals.map((v,i) => {
+      const x = (i / (vals.length - 1)) * 200;
+      const y = 44 - ((v - min) / span) * 40;
+      return (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }).join(' ');
+  }
+
+  let lastStep = null;
+
+  function render(){
+    const now = Date.now(), n = Math.floor(now / STEP);
+    const minsLeft = Math.max(1, Math.ceil(((n + 1) * STEP - now) / 60000));
+    document.getElementById('next').textContent = 'Next update in ' + minsLeft + ' min';
+    if (n === lastStep) return;
+    lastStep = n;
+
+    for (const [key, fuel] of Object.entries(FUELS)){
+      const el = document.getElementById('sign-' + key);
+      const hist = Array.from({length: 12}, (_, i) => priceAt(fuel, n - 11 + i));
+      const last = hist[11], prev = hist[10], diff = (last - prev) * 100;
+      el.querySelector('[data-f="price"]').innerHTML = priceHTML(last);
+      const ch = el.querySelector('[data-f="change"]');
+      if (Math.abs(diff) < 0.5){ ch.className = 'change flat'; ch.innerHTML = 'No change <span>since last update</span>'; }
+      else {
+        const up = diff > 0;
+        ch.className = 'change ' + (up ? 'up' : 'down');
+        ch.innerHTML = (up ? '▲ ' : '▼ ') + Math.round(Math.abs(diff)) + '¢ <span>since last update</span>';
+      }
+      el.querySelector('[data-f="spark"]').setAttribute('d', spark(hist));
+      el.querySelector('[data-f="trendlbl"]').textContent = 'Last 3 hours';
+    }
+    // Traffic: starts the day at 100 vehicles and adds 20 every 15 minutes, resetting at midnight.
+    const d = new Date(n * STEP), midnight = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const stepsToday = Math.round((n * STEP - midnight) / STEP);
+    document.getElementById('traffic').textContent = (TRAFFIC_START + TRAFFIC_STEP * stepsToday).toLocaleString('en-US');
+    document.getElementById('traffic-up').innerHTML = '+' + TRAFFIC_STEP + '<span class="pill-more"> in 15 min</span>';
+
+    document.getElementById('updated').textContent =
+      new Date(n * STEP).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+  }
+
+  render();
+  setInterval(render, 15 * 1000);   // checks every 15 seconds; prices move every 15 minutes
+})();
+</script>
+</body>
+</html>
